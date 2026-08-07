@@ -1,0 +1,23 @@
+[Unit]
+Description=Vector log collector
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ vector_user }}
+Group={{ vector_group }}
+ExecStartPre=/usr/bin/vector validate /etc/vector/vector.yaml
+ExecStart=/usr/bin/vector --config /etc/vector/vector.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+# Security
+ProtectSystem=strict
+ReadWritePaths=/var/lib/vector
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

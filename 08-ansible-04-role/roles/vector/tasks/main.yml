@@ -1,0 +1,49 @@
+---
+- name: Get Vector distrib
+  ansible.builtin.get_url:
+    url: "https://yum.vector.dev/stable/vector-0/{{ vector_arch }}/vector-{{ vector_version }}.{{ vector_arch }}.rpm"
+    dest: "./vector-{{ vector_version }}.{{ vector_arch }}.rpm"
+    mode: '0755'
+- name: Install Vector packages
+  become: true
+  ansible.builtin.yum:
+    name:
+      - vector-{{ vector_version }}.{{ vector_arch }}.rpm
+- name: Create vector user and group
+  become: true
+  ansible.builtin.user:
+    name: "{{ vector_user }}"
+    group: "{{ vector_group }}"
+    system: true
+    create_home: false
+    shell: /sbin/nologin
+- name: Create Vector directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ vector_user }}"
+    group: "{{ vector_group }}"
+    mode: '0755'
+  loop:
+    - /etc/vector
+    - /var/lib/vector
+- name: Create Vector configuration
+  become: true
+  ansible.builtin.template:
+    src: vector.yaml.j2
+    dest: /etc/vector/vector.yaml
+    owner: "{{ vector_user }}"
+    group: "{{ vector_group }}"
+    mode: '0640'
+- name: Create Vector systemd service
+  become: true
+  ansible.builtin.template:
+    src: vector.service.j2
+    dest: /etc/systemd/system/vector.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Start Vector service

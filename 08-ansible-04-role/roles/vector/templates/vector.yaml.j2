@@ -1,0 +1,13 @@
+sources:
+  syslog:
+    type: file
+    include:
+      - {{ log_path | default('/var/log/syslog') }}
+
+sinks:
+  clickhouse:
+    type: clickhouse
+    inputs:
+      - syslog
+    endpoint: {{ clickhouse_endpoint }}
+    table: {{ table | default('logs') }}

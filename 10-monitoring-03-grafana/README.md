@@ -61,7 +61,7 @@
 
 <details>
 <summary>Листинг файла JSON MODEL</summary>
-
+```
 {
   "annotations": [
     {
@@ -761,7 +761,7 @@
   "title": "Мониторинг моей локальной VM01",
   "variables": []
 }
-
+```
 </details>
 
 ---
